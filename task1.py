@@ -48,7 +48,7 @@ def load_images(filename: str, target_indices: list):
             for index in target_indices:
                 # Αν "βρίσκομαι" στη ζητούμενη εικόνα τη διαβάζω.
                 if current_index == index:
-                    images.append(np.array(list(file.read(img_bytesize))).reshape((img_rowsize, img_colsize)))
+                    images.append(np.array(list(file.read(img_bytesize))))
                     current_index += 1
                 # Αν η τρέχουσα θέση έχει ξεπεράσει το όριο, αγνοώ την παράμετρο και τερματίζω.
                 elif current_index > number_of_images:
@@ -62,13 +62,13 @@ def load_images(filename: str, target_indices: list):
                     current_index = index
 
                     # Διαβάζω την εικόνα.
-                    images.append(np.array(list(file.read(img_bytesize))).reshape((img_rowsize, img_colsize)))
+                    images.append(np.array(list(file.read(img_bytesize))))
                     current_index += 1
 
             return images
 
 
-def load_subset(image_file: str, label_file: str, numbers_filter: list = None, element_number: int = None):
+def load_subset(image_file: str, label_file: str, numbers_filter: list = None):
     labels = load_labels(label_file)
 
     # Κάνω επιλογή ψηφίων μόνο αν δίνεται λίστα με ψηφία προς επιλογή.
@@ -83,26 +83,40 @@ def load_subset(image_file: str, label_file: str, numbers_filter: list = None, e
     else:
         image_indices = [i for i in range(len(labels))]
 
-    images = load_images(image_file, image_indices[:element_number])
+    images = load_images(image_file, image_indices)
 
-    return {'images': images, 'labels': labels}
+    return images, labels
 
-def get_M_N_Ltr_Lte():
-    M = np.array() ...
 
 training_images_filename, training_labels_filename = 'datasets/train-images-idx3-ubyte', 'datasets/train-labels-idx1-ubyte'
 testing_images_filename, testing_labels_filename = 'datasets/t10k-images-idx3-ubyte', 'datasets/t10k-labels-idx1-ubyte'
 
-# Δοκιμή των παραπάνω συναρτήσεων.
+
+def get_M_N_Ltr_Lte():
+    # Κατασκευάζω τα M, N, L_tr και L_te όπως ζητούνται.
+    train_images, train_labels = load_subset(training_images_filename, training_labels_filename, [1, 3, 7, 9])
+    M = np.array(train_images)
+
+    test_images, test_labels = load_subset(testing_images_filename, testing_labels_filename, [1, 3, 7, 9])
+    N = np.array(test_images)
+
+    L_tr = np.array(train_labels)
+
+    L_te = np.array(test_labels)
+
+    return M, N, L_tr, L_te
+
+
+# Εκτέλεση του ζητούμενου task.
 if __name__ == "__main__":
     filter = [1, 3, 7, 9]
-    data = load_subset(training_images_filename, training_labels_filename, element_number=16, numbers_filter=filter)
+    data = load_subset(training_images_filename, training_labels_filename, numbers_filter=filter)
     fig, ax = plt.subplots(4, 4)
     for ii in range(4):
         for jj in range(4):
-            i = ii*4 + jj
-            ax[ii, jj].imshow(data['images'][i])
-            ax[ii, jj].set_title(label='Image of %d' % data['labels'][i])
+            i = ii * 4 + jj
+            ax[ii, jj].imshow(data[0][i].reshape((28, 28)))
+            ax[ii, jj].set_title(label='Image of %d' % data[1][i])
             ax[ii, jj].set_axis_off()
     plt.tight_layout()
     plt.show()
