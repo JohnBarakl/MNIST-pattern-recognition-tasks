@@ -55,7 +55,7 @@ def k_means(matrix: np.ndarray, num_of_clusters, distance=euclidean_distance):
     x = matrix
 
     # Αρχική τιμή του z, θα ανατραπεί στη 1η επανάληψη.
-    z = np.array([[0, 0] for i in range(num_of_clusters)])
+    z = np.array([[0 for j in range(matrix.shape[1])] for i in range(num_of_clusters)])
 
     # ------ Βήμα 1 ------ #
     # Επιλέγονται τα αρχικά κέντρα από τα αποτελέσματα του αλγορίθμου MaxiMin.
@@ -93,18 +93,18 @@ def k_means(matrix: np.ndarray, num_of_clusters, distance=euclidean_distance):
 
 def visualize_clustered_M_cap(clustering_result):
     # Δημιουργία scatter plot της κάθε ομάδας.
-    plt.scatter(np.array(clustering_result[1][0])[:, 0], np.array(clustering_result[1][0])[:, 1], c='m', alpha=0.2,
+    plt.scatter(np.array(clustering_result[1][0])[:, 0], np.array(clustering_result[1][0])[:, 1], c='m', alpha=0.02,
                 marker='o')
-    plt.scatter(np.array(clustering_result[1][1])[:, 0], np.array(clustering_result[1][1])[:, 1], c='g', alpha=0.2,
+    plt.scatter(np.array(clustering_result[1][1])[:, 0], np.array(clustering_result[1][1])[:, 1], c='g', alpha=0.02,
                 marker='o')
-    plt.scatter(np.array(clustering_result[1][2])[:, 0], np.array(clustering_result[1][2])[:, 1], c='b', alpha=0.2,
+    plt.scatter(np.array(clustering_result[1][2])[:, 0], np.array(clustering_result[1][2])[:, 1], c='b', alpha=0.02,
                 marker='o')
-    plt.scatter(np.array(clustering_result[1][3])[:, 0], np.array(clustering_result[1][3])[:, 1], c='r', alpha=0.2,
+    plt.scatter(np.array(clustering_result[1][3])[:, 0], np.array(clustering_result[1][3])[:, 1], c='r', alpha=0.02,
                 marker='o')
     plt.show()
 
 
-def calculate_cluster_purity(image_matrix: np.ndarray, label_matrix: np.ndarray, clustering_results: list):
+def clustering_purity(image_matrix: np.ndarray, label_matrix: np.ndarray, clustering_results: list):
     # "Κρατάω" μόνο τα σύνολα των ομάδων.
     sets = clustering_results[1]
 
@@ -142,4 +142,4 @@ if __name__ == '__main__':
     visualize_clustered_M_cap(results)
 
     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
-    print('Purity=', calculate_cluster_purity(M_cap, L_tr, results))
+    print('Purity=', clustering_purity(M_cap, L_tr, results))
