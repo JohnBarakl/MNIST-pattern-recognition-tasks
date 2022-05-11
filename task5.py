@@ -3,9 +3,7 @@ import task1, task2, task3, task4
 import numpy as np
 
 
-def fun(data_matrix: np.ndarray, L_tr: np.ndarray):
-    class_labels = (1, 3, 7, 9)
-
+def train_naive_bayes(data_matrix: np.ndarray, L_tr: np.ndarray):
     # Ψευδώνυμο του data_matrix για ευκολότερη διαχείριση και ταύτιση με τους τύπους θεωρίας.
     # Το x_ik που αναφέρεται παρακάτω αντιστοιχεί στο X[i][k].
     X = data_matrix
@@ -40,6 +38,9 @@ def fun(data_matrix: np.ndarray, L_tr: np.ndarray):
     # Συντομογραφία του πλήθους στοιχείων (ανα κλάση).
     N = [len(num_class[i]) for i in range(4)]
 
+    # Υπολογίζω τις apriori πιθανότητες των κλάσεων.
+    apriori_P_c = [N[i] / N_total for i in range(4)]
+
     # -------------------------------------------- Εύρεση Κατανομών -------------------------------------------- #
 
     # Εκτίμηση μέσων τιμών.
@@ -50,7 +51,8 @@ def fun(data_matrix: np.ndarray, L_tr: np.ndarray):
     # Εκτίμηση διασπορών.
     s_squared = []
     for k in range(4):
-        m.append([sum([(num_class[k][i][j] - m[k][j])**2 for i in range(N[k])]) / (N[k] - 1) for j in range(D)])  # Σχέση 2.125.
+        s_squared.append([sum([(num_class[k][i][j] - m[k][j]) ** 2 for i in range(N[k])]) / (N[k] - 1) for j in
+                          range(D)])  # Σχέση 2.125.
 
     def P(event, evidence_normal):
         """
@@ -69,11 +71,45 @@ def fun(data_matrix: np.ndarray, L_tr: np.ndarray):
         m, s2 = evidence_normal[:2]
         x = event
 
-        return np.exp(-((x-m)**2) / (2 * s2)) / np.sqrt(2 * np.pi * s2)
+        return np.exp(-((x - m) ** 2) / (2 * s2)) / np.sqrt(2 * np.pi * s2)
 
     # -------------------------------------------- Υλοποίηση Naive Bayes -------------------------------------------- #
 
     # Ο απλοϊκός ταξινομητής bayes (Naive Bayes) ταξινομεί ένα άγνωστο δείγμα x στην κλάση C_m όπου:
-    #   C_m = argmax_C_j{ Π_{i = 1}^{l} P(x_i | C_j)
+    #   C_m = argmax_j{ P(C_j) Π_{i = 1}^{l} P(x_i | C_j) }, (Αναγνώριση Προτύπων, S. Theodoridis, K. Koutroubas, 4η έκδοση,
+    #   σελίδα 70).
+
+    def gausian_naive_bayes_classification(x):
+        """
+        Προβλέπει την κλάση στην οποία ανήκει το σημείο x (δηλαδή προβλέπει το ψηφίο (1 ή 3 ή 7 ή 9)
+        που απεικονίζεται σε μία εικόνα).
+        :param x: Μία εικόνα ίδιας διάστασης με το σύνολο εικόνων του συνόλου εκπαίδευσης.
+        :return: Την κλάση που (είναι πιο πιθανό) να ανήκει η εικόνα (1 ή 3 ή 7 ή 9).
+        """
+
+        # Αντιστοίχηση μετρητών σε κλάσεις (π.χ. ώστε ο δείκτης a[0] να αντιστοιχεί στο a της κλάσης 1).
+        class_labels = (1, 3, 7, 9)
+
+        probability_for_each_class = []
+        for i in range(4):
+            pr = np.sum(np.log([P(x[j], (m[i][j], s_squared[i][j])) for j in range(len(x))]))
+
+            probability_for_each_class.append(pr)
+
+        return class_labels[np.argmax(probability_for_each_class)]
+
+    return gausian_naive_bayes_classification
 
 
+if __name__ == '__main__':
+    M, N, L_tr, L_te = task1.get_M_N_Ltr_Lte()
+
+    # Μετασχηματισμός δεδομένων.
+    transformation_base = task4.pca(M, 50)
+    M_cap = task4.transform(M, base=transformation_base)
+    N_cap = task4.transform(N, base=transformation_base)
+
+    clf = train_naive_bayes(M_cap, L_tr)
+
+    print("Train set accuracy:", sum([1 if clf(M_cap[i]) == L_tr[i] else 0 for i in range(len(L_tr))])/ len(L_tr))
+    print("Test set accuracy:", sum([1 if clf(N_cap[i]) == L_te[i] else 0 for i in range(len(L_te))])/ len(L_te))

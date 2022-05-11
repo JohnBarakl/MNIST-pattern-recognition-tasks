@@ -38,18 +38,27 @@ def pca(data_matrix: np.ndarray, V: int):
 
 
 # Εφαρμογή μείωσης διαστάσεων με τη χρήση PCA.
-def dimensionality_reduction_with_pca(data_matrix: np.ndarray, V: int):
+def transform(data_matrix: np.ndarray, V: int = None, base=None):
     """
     Εφαρμογή μείωσης διαστάσεων με τη χρήση PCA.
     :param data_matrix: Πίνακας N x D με δεδομένα όπου N είναι ο αριθμός των δειγμάτων και D ο αριθμός διαστάσεων κάθε
                         δείγματος (οι γραμμές περιέχουν D-διάστατα διανύσματα που αποτελούν εικόνες και οι στήλες
                         περιέχουν τα features (στην περίπτωση αυτή τα pixel των εικόνων) των δεδομένων).
-    :param V: Ο νέος αριθμός διαστάσεων.
+    :param V: Ο νέος αριθμός διαστάσεων. Τιμή None σηματοδοτεί τη χρήση δοθέντος διανύσματος βάσης base (αν λείπει και
+    το base, τότε θεωρείται V = 2).
+    :param base: Η βάση μετασχηματισμού (που προήλθε από τη συνάρτηση pca ή κάποια με αντίστοιχη έξοδο). Τιμή None
+    σηματοδοτεί τη δημιουργία νέου διανύσματος βάσης από μετασχηματισμό PCA.
     :return: Ο μετασχηματισμένος πίνακας N x V με νέες διαστάσεις.
     """
 
-    # Υπολογισμός βάσης προς προβολή.
-    base = pca(data_matrix, V)
+    # Άν έχει δοθεί νέα βάση, τότε πρέπει να χρησιμοποιήσω αυτή. Διαφορετικά υπολογίζω νέα βάσει δοθέν V.
+    if base is None:
+        # "Aν λείπει και το base, τότε θεωρείται V = 2"
+        if V is None:
+            V = 2
+
+        # Υπολογισμός βάσης προς προβολή.
+        base = pca(data_matrix, V)
 
     # Υπολογισμός προβολής δειγμάτων του X (data_matrix) προς τη νέα βάση εκτελώντας μείωση διαστατικότητας.
     return np.matmul(base.T, data_matrix.T).T
@@ -83,7 +92,7 @@ if __name__ == '__main__':
     V = 2
 
     # Μετασχηματισμός δεδομένων.
-    M_cap = dimensionality_reduction_with_pca(M, V)
+    M_cap = transform(M, V=V)
 
     # Δημιουργία scatter plot για μείωση διαστατικότητας με V = 2.
     plt.figure(0)
@@ -100,13 +109,13 @@ if __name__ == '__main__':
     purities.append(purity)
 
     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
-    print('Purity with V = %d: '%V, purity)
+    print('Purity with V = %d: ' % V, purity)
 
     # ----- Για V = 25 ----- #
     V = 25
 
     # Μετασχηματισμός δεδομένων.
-    M_cap = dimensionality_reduction_with_pca(M, V)
+    M_cap = transform(M, V=V)
 
     # Clustering με K-Means μετέπειτα από Maximin (υλοποιείται από task3 οπότε απλά χρησιμοποιείται από εκεί):
     results = task3.k_means(M_cap, V)
@@ -115,13 +124,13 @@ if __name__ == '__main__':
     purities.append(purity)
 
     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
-    print('Purity with V = %d: '%V, purity)
+    print('Purity with V = %d: ' % V, purity)
 
     # ----- Για V = 50 ----- #
     V = 50
 
     # Μετασχηματισμός δεδομένων.
-    M_cap = dimensionality_reduction_with_pca(M, V)
+    M_cap = transform(M, V=V)
 
     # Clustering με K-Means μετέπειτα από Maximin (υλοποιείται από task3 οπότε απλά χρησιμοποιείται από εκεί):
     results = task3.k_means(M_cap, V)
@@ -130,12 +139,12 @@ if __name__ == '__main__':
     purities.append(purity)
 
     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
-    print('Purity with V = %d: '%V, purity)
+    print('Purity with V = %d: ' % V, purity)
     # ----- Για V = 100 ----- #
     V = 100
 
     # Μετασχηματισμός δεδομένων.
-    M_cap = dimensionality_reduction_with_pca(M, V)
+    M_cap = transform(M, V=V)
 
     # Clustering με K-Means μετέπειτα από Maximin (υλοποιείται από task3 οπότε απλά χρησιμοποιείται από εκεί):
     results = task3.k_means(M_cap, V)
@@ -144,9 +153,7 @@ if __name__ == '__main__':
     purities.append(purity)
 
     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
-    print('Purity with V = %d: '%V, purity)
+    print('Purity with V = %d: ' % V, purity)
 
     print()
     print('Result: Vmax = ', [2, 25, 50, 100][np.argmax(purities)])
-
-
