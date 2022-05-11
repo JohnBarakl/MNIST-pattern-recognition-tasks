@@ -76,7 +76,7 @@ def train_naive_bayes(data_matrix: np.ndarray, L_tr: np.ndarray):
     # -------------------------------------------- Υλοποίηση Naive Bayes -------------------------------------------- #
 
     # Ο απλοϊκός ταξινομητής bayes (Naive Bayes) ταξινομεί ένα άγνωστο δείγμα x στην κλάση C_m όπου:
-    #   C_m = argmax_j{ P(C_j) Π_{i = 1}^{l} P(x_i | C_j) }, (Αναγνώριση Προτύπων, S. Theodoridis, K. Koutroubas, 4η έκδοση,
+    #   C_m = argmax_C_j{ Π_{i = 1}^{l} P(x_i | C_j) }, (Αναγνώριση Προτύπων, S. Theodoridis, K. Koutroubas, 4η έκδοση,
     #   σελίδα 70).
 
     def gausian_naive_bayes_classification(x):
@@ -92,6 +92,9 @@ def train_naive_bayes(data_matrix: np.ndarray, L_tr: np.ndarray):
 
         probability_for_each_class = []
         for i in range(4):
+            # Χρησιμοποιείται log για να αντιμετωπιστούν (πιθανώς) πολύ μικρές τιμές.
+            # Η apriori πιθανότητα των κλάσεων θεωρείται ισοπίθανη (ανεξαρτήτως του πραγματικού πλήθους δοθέντων στοιχείων
+            # ανα κλάση) και επομένως απαλείφεται (εφόσον θα προβούμε σε σύγκριση ένας ίσος όρος μπορεί να απαλειφθεί).
             pr = np.sum(np.log([P(x[j], (m[i][j], s_squared[i][j])) for j in range(len(x))]))
 
             probability_for_each_class.append(pr)
