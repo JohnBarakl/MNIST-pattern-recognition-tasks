@@ -33,14 +33,13 @@ def load_images(filename: str, target_indices: list):
         # Διάβασμα των εικόνων στις θέσεις που ζητήθηκε. Αν η παράμετρος θέσεων είναι None, διαβάζονται όλες.
         if len(target_indices) == 0:
             while number_of_images > 0:
-                # Διαβάζω μία ολόκληρη εικόνα: Εφόσον είναι αποθηκευμένες row-wise, διαβάζω γραμμές * στήλες bytes και στη
-                # συνέχεια τα μεταμορφώνω σε matrix με αντίστοιχες διαστάσεις.
-                images.append(np.array(list(file.read(img_bytesize))).reshape((img_rowsize, img_colsize)))
+                # Διαβάζω μία ολόκληρη εικόνα: Εφόσον είναι αποθηκευμένες row-wise, διαβάζω γραμμές * στήλες bytes.
+                images.append(np.array(list(file.read(img_bytesize))))
 
                 number_of_images -= 1
             return images
         else:
-            # Για να λειτουργήσει αποδοτικά ο ακόλουθος αλγόριθμος, χρειάζεται ταξινομημένη λίστα δεικτών.
+            # Για να λειτουργήσει ο ακόλουθος αλγόριθμος, χρειάζεται ταξινομημένη λίστα δεικτών.
             target_indices.sort()
 
             # Η φόρτωση ξεκινάει από την 1η εικόνα.
@@ -109,8 +108,12 @@ def get_M_N_Ltr_Lte():
 
 # Εκτέλεση του ζητούμενου task.
 if __name__ == "__main__":
-    filter = [1, 3, 7, 9]
-    data = load_subset(training_images_filename, training_labels_filename, numbers_filter=filter)
+    # Φόρτωση δεδομένων.
+    data = get_M_N_Ltr_Lte()
+    # Κρατάω μόνο τα training data.
+    data = data[0], data[2]
+
+    # "Εκτύπωση" 16 εικόνων για επαλήθευση ορθότητας διαδικασίας.
     fig, ax = plt.subplots(4, 4)
     for ii in range(4):
         for jj in range(4):

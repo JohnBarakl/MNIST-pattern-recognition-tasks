@@ -32,17 +32,18 @@ def visualize_scatter():
     M_cap = reshape_and_extract_feature_vector(M)
 
     # Αντιστοίχιση από αρίθμηση κλάσεων με ακεραίους σε χρώματα.
-    colors = list(map(lambda l: {1: 1, 3: 2, 7: 3, 9: 4}[l], L_tr))
-    cmap = ListedColormap(['r', 'g', 'b', 'm'])
+    colors = L_tr
+    cmap = ListedColormap(['r', 'r', 'g', 'r', 'r', 'r', 'b', 'r', 'm'])
 
     # -- Δημιουργία scatter plot --
     scatter = plt.scatter(M_cap[:, 0], M_cap[:, 1], c=colors, cmap=cmap, alpha=0.02)
 
     # Δημιουργία legend.
-    leg = plt.legend(*scatter.legend_elements())
-    for lh in leg.legendHandles:
-        lh.set_alpha(1)
+    legend = plt.legend(*scatter.legend_elements())
+    for legend_handle in legend.legendHandles:
+        legend_handle.set_alpha(1)
 
+    plt.title(r"$\hat{\mathbf{M}}$ visualization")
     plt.show()
 
 # Εκτέλεση του ζητούμενου task.

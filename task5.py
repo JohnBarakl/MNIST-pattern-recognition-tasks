@@ -11,9 +11,9 @@ def train_naive_bayes(data_matrix: np.ndarray, L_tr: np.ndarray):
     # Υποθέτω πως οι κατανομές των κλάσεων C_jk των ψηφίων j = 1, 2, 7, 9 και pixel k = 1, 2, ..., 50 είναι κανονικές
     #   με μέση τιμή m_jk και διασπορά s_jk ^ 2.
     # Επομένως, αρκεί να βρούμε τα m και s για κάθε μία κατανομή ώστε να μπορέσει στην πορεία να υπολογιστούν οι πιθανότητες
-    #   P(x_ik|C_jk) = (1 / (2πσ_jk^2)^(1/2) ) * exp{-(1/2σ_jk^2)(x_ik-m_jk)^2} ([ΑΝΑΓΝΩΡΙΣΗ ΠΡΟΤΥΠΩΝ ΚΑΙ ΜΗΧΑΝΙΚΗ ΜΑΘΗΣΗ, 2η έκδοση,
+    #   P(x_ik|C_k) = (1 / (2πσ_jk^2)^(1/2) ) * exp{-(1/2σ_jk^2)(x_ik-m_jk)^2} ([ΑΝΑΓΝΩΡΙΣΗ ΠΡΟΤΥΠΩΝ ΚΑΙ ΜΗΧΑΝΙΚΗ ΜΑΘΗΣΗ, 2η έκδοση,
     #   Christopher M. Bishop], σελίδα 97).
-    # Τα m_jk και s_jk ^ 2 κάθε κλάσης C_jk μπορούν να εκτιμηθούν βάσει μέγιστης πιθανοφάνειας από τους τύπους
+    # Τα m_jk και s_jk ^ 2 κάθε κλάσης C_k μπορούν να εκτιμηθούν βάσει μέγιστης πιθανοφάνειας από τους τύπους
     # (προσαρμοσμένοι σε διάσταση D = 1 από [ΑΝΑΓΝΩΡΙΣΗ ΠΡΟΤΥΠΩΝ ΚΑΙ ΜΗΧΑΝΙΚΗ ΜΑΘΗΣΗ, 2η έκδοση, Christopher M. Bishop],
     # σελίδες 112-113):
     #   m_jk = 1/N * Σ_{i=1}^{N} (x_ik), N σύνολο σημείων x,
@@ -76,7 +76,7 @@ def train_naive_bayes(data_matrix: np.ndarray, L_tr: np.ndarray):
     # -------------------------------------------- Υλοποίηση Naive Bayes -------------------------------------------- #
 
     # Ο απλοϊκός ταξινομητής bayes (Naive Bayes) ταξινομεί ένα άγνωστο δείγμα x στην κλάση C_m όπου:
-    #   C_m = argmax_C_j{ Π_{i = 1}^{l} P(x_i | C_j) }, (Αναγνώριση Προτύπων, S. Theodoridis, K. Koutroubas, 4η έκδοση,
+    #   C_m = argmax_C_j{ Π_{i = 1}^{l} P(x_i | C_j) }, ([Αναγνώριση Προτύπων, S. Theodoridis, K. Koutroubas, 4η έκδοση],
     #   σελίδα 70).
 
     def gausian_naive_bayes_classification(x):
@@ -104,15 +104,17 @@ def train_naive_bayes(data_matrix: np.ndarray, L_tr: np.ndarray):
     return gausian_naive_bayes_classification
 
 
+# Υλοποιεί τα ζητούμενα της εκφώνησης
 if __name__ == '__main__':
     M, N, L_tr, L_te = task1.get_M_N_Ltr_Lte()
 
     # Μετασχηματισμός δεδομένων.
     transformation_base = task4.pca(M, 50)
-    M_cap = task4.transform(M, base=transformation_base)
-    N_cap = task4.transform(N, base=transformation_base)
+    M_approx = task4.transform(M, base=transformation_base)
+    N_approx = task4.transform(N, base=transformation_base)
 
-    clf = train_naive_bayes(M_cap, L_tr)
+    # Εκπαίδευση μοντέλου.
+    clf = train_naive_bayes(M_approx, L_tr)
 
-    print("Train set accuracy:", sum([1 if clf(M_cap[i]) == L_tr[i] else 0 for i in range(len(L_tr))])/ len(L_tr))
-    print("Test set accuracy:", sum([1 if clf(N_cap[i]) == L_te[i] else 0 for i in range(len(L_te))])/ len(L_te))
+    # Υπολογισμός και εμφάνιση ακρίβειας.
+    print("Test set classification accuracy:", sum([1 if clf(N_approx[i]) == L_te[i] else 0 for i in range(len(L_te))]) / len(L_te))

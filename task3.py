@@ -1,8 +1,7 @@
-import matplotlib.pyplot as plt
-
 import task1, task2
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def euclidean_distance(x, y):
@@ -91,7 +90,7 @@ def k_means(matrix: np.ndarray, num_of_clusters, distance=euclidean_distance):
     return z_new, S
 
 
-def visualize_clustered_M_cap(clustering_result):
+def visualize_clustering(clustering_result, title=""):
     # Δημιουργία scatter plot της κάθε ομάδας.
     plt.scatter(np.array(clustering_result[1][0])[:, 0], np.array(clustering_result[1][0])[:, 1], c='m', alpha=0.02,
                 marker='o')
@@ -101,6 +100,7 @@ def visualize_clustered_M_cap(clustering_result):
                 marker='o')
     plt.scatter(np.array(clustering_result[1][3])[:, 0], np.array(clustering_result[1][3])[:, 1], c='r', alpha=0.02,
                 marker='o')
+    plt.title(title)
     plt.show()
 
 
@@ -115,13 +115,20 @@ def clustering_purity(image_matrix: np.ndarray, label_matrix: np.ndarray, cluste
     # Μεταβλητή μερικού αθροίσματος.
     s = 0
 
-    # Υπολογισμός πληρότητας βάσει του τύπου: (1/N)* ∑_{m∈M} max_{d∈D}|m∩d|, όπου N ο αριθμός παραδειγμάτων ομαδοποίησης
-    # (εδώ αριθμός εικόνων), M οι ομάδες (clusters) του αποτελέσματος και D οι κλάσεις στις οποίες στην πραγματικότητα
+    # Υπολογισμός πληρότητας βάσει του τύπου: (1/N)* ∑_{ω_k∈Ω} max_{c_j∈C}|ω_k∩c_j|, όπου N ο αριθμός παραδειγμάτων ομαδοποίησης
+    # (εδώ αριθμός εικόνων), Ω οι ομάδες (clusters) του αποτελέσματος και C οι κλάσεις στις οποίες στην πραγματικότητα
     # ανήκουν τα παραδείγματα ομαδοποίησης.
+    # Πηγή: "https://nlp.stanford.edu/IR-book/html/htmledition/evaluation-of-clustering-1.html#eqn:purity".
     for cluster in sets:
         class_examples = [0 for i in range(10)]
         for example in cluster:
+            # Το |ω_k∩c_j| δηλώνει τον πληθάριθμο του συνόλου των κοινών στοιχείων μεταξύ του cluster ω_k
+            #   και της κλάσης c_j.
+            # Αυτό μπορούμε να το δούμε και ως το πλήθος των στοιχείων που ανήκουν στην ομάδα (cluster) ω_k και ταυτόχρονα
+            #   στην κλάση c_j.
+            # Έτσι, αρκεί να μετρηθούν πόσα στοιχεία του cluster ω_k ανήκουν σε κάθε κλάση:
             class_examples[label_matrix[image_list.index(example.tolist())]] += 1
+        # Βρίσκω το max_{c_j∈C} για τους πληθαρίθμους που βρήκα στο προηγούμενο βήμα και το προσθέτω στο άθροισμα.
         s += class_examples[np.argmax(class_examples)]
 
     return s / len(image_matrix)
@@ -139,7 +146,7 @@ if __name__ == '__main__':
     results = k_means(M_cap, 4)
 
     # Κλήση για οπτικοποίηση.
-    visualize_clustered_M_cap(results)
+    visualize_clustering(results, r"$\hat{\mathbf{M}}$ clustering visualization")
 
     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
-    print('Purity=', clustering_purity(M_cap, L_tr, results))
+    print('Purity =', clustering_purity(M_cap, L_tr, results))

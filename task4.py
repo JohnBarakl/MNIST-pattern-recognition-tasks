@@ -22,7 +22,7 @@ def pca(data_matrix: np.ndarray, V: int):
 
     N = len(X)  # Αριθμός στοιχείων του πίνακα.
 
-    # Υπολογισμός του πίνακα συνδιακύμανσης
+    # Υπολογισμός του πίνακα συνδιακύμανσης.
     S = (1 / N) * np.matmul((X - m).T, (X - m))
 
     # Υπολογισμός των ιδιοδιανυσμάτων του πίνακα συνδιακύμανσης που δίνουν τις κατευθύνσεις των V κυρίων συνιστωσών του
@@ -64,19 +64,20 @@ def transform(data_matrix: np.ndarray, V: int = None, base=None):
     return np.matmul(base.T, data_matrix.T).T
 
 
-def visualize_plain_scatter(M, L_tr):
+def visualize_plain_scatter(M, L_tr, title=""):
     # Αντιστοίχιση από αρίθμηση κλάσεων με ακεραίους σε χρώματα.
-    colors = list(map(lambda l: {1: 0, 3: 1, 7: 2, 9: 3}[l], L_tr))
-    cmap = ListedColormap(['r', 'g', 'b', 'm'])
+    colors = L_tr
+    cmap = ListedColormap(['r', 'r', 'g', 'r', 'r', 'r', 'b', 'r', 'm'])
 
     # -- Δημιουργία scatter plot --
     scatter = plt.scatter(M[:, 0], M[:, 1], c=colors, cmap=cmap, alpha=0.02)
 
     # Δημιουργία legend.
-    leg = plt.legend(*scatter.legend_elements())
-    for lh in leg.legendHandles:
-        lh.set_alpha(1)
+    legend = plt.legend(*scatter.legend_elements())
+    for legend_handle in legend.legendHandles:
+        legend_handle.set_alpha(1)
 
+    plt.title(title)
     plt.show()
 
 
@@ -92,20 +93,20 @@ if __name__ == '__main__':
     V = 2
 
     # Μετασχηματισμός δεδομένων.
-    M_cap = transform(M, V=V)
+    M_approx = transform(M, V=V)
 
     # Δημιουργία scatter plot για μείωση διαστατικότητας με V = 2.
     plt.figure(0)
-    visualize_plain_scatter(M_cap, L_tr)
+    visualize_plain_scatter(M_approx, L_tr, r"$\tilde{\mathbf{M}}$ visualization")
 
     # Clustering με K-Means μετέπειτα από Maximin (υλοποιείται από task3 οπότε απλά χρησιμοποιείται από εκεί):
-    results = task3.k_means(M_cap, 4)
+    results = task3.k_means(M_approx, 4)
 
     # Κλήση για οπτικοποίηση.
     plt.figure(1)
-    task3.visualize_clustered_M_cap(results)
+    task3.visualize_clustering(results, r"$\tilde{\mathbf{M}}$ clustering visualization")
 
-    purity = task3.clustering_purity(M_cap, L_tr, results)
+    purity = task3.clustering_purity(M_approx, L_tr, results)
     purities.append(purity)
 
     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
@@ -115,12 +116,12 @@ if __name__ == '__main__':
     V = 25
 
     # Μετασχηματισμός δεδομένων.
-    M_cap = transform(M, V=V)
+    M_approx = transform(M, V=V)
 
     # Clustering με K-Means μετέπειτα από Maximin (υλοποιείται από task3 οπότε απλά χρησιμοποιείται από εκεί):
-    results = task3.k_means(M_cap, V)
+    results = task3.k_means(M_approx, V)
 
-    purity = task3.clustering_purity(M_cap, L_tr, results)
+    purity = task3.clustering_purity(M_approx, L_tr, results)
     purities.append(purity)
 
     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
@@ -130,12 +131,12 @@ if __name__ == '__main__':
     V = 50
 
     # Μετασχηματισμός δεδομένων.
-    M_cap = transform(M, V=V)
+    M_approx = transform(M, V=V)
 
     # Clustering με K-Means μετέπειτα από Maximin (υλοποιείται από task3 οπότε απλά χρησιμοποιείται από εκεί):
-    results = task3.k_means(M_cap, V)
+    results = task3.k_means(M_approx, V)
 
-    purity = task3.clustering_purity(M_cap, L_tr, results)
+    purity = task3.clustering_purity(M_approx, L_tr, results)
     purities.append(purity)
 
     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
@@ -144,12 +145,12 @@ if __name__ == '__main__':
     V = 100
 
     # Μετασχηματισμός δεδομένων.
-    M_cap = transform(M, V=V)
+    M_approx = transform(M, V=V)
 
     # Clustering με K-Means μετέπειτα από Maximin (υλοποιείται από task3 οπότε απλά χρησιμοποιείται από εκεί):
-    results = task3.k_means(M_cap, V)
+    results = task3.k_means(M_approx, V)
 
-    purity = task3.clustering_purity(M_cap, L_tr, results)
+    purity = task3.clustering_purity(M_approx, L_tr, results)
     purities.append(purity)
 
     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
