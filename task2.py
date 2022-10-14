@@ -6,6 +6,11 @@ from matplotlib.colors import ListedColormap
 
 
 def reshape_and_extract_feature_vector(images_matrix: np.ndarray):
+    """
+    Μετασχηματίζει κάθε εικόνα και εξάγει από αυτή ένα δισδιάστατο διάνυσμα.
+    :param images_matrix: Πίνακας με εικόνες.
+    :return: Πίνακας με μετασχηματισμένες εικόνες.
+    """
     m = []
 
     for img in images_matrix:
@@ -25,6 +30,9 @@ def reshape_and_extract_feature_vector(images_matrix: np.ndarray):
 
 
 def visualize_scatter():
+    """
+    Παράγει γράφημα (scatter plot) με τις μετασχηματισμένες εικόνες.
+    """
     # Επεξεργασία από Task 1.
     M, _, L_tr, _ = task1.get_M_N_Ltr_Lte()
 
@@ -33,6 +41,8 @@ def visualize_scatter():
 
     # Αντιστοίχιση από αρίθμηση κλάσεων με ακεραίους σε χρώματα.
     colors = L_tr
+    # Κόκκινο για την κλάση 1, Πράσινο για την κλάση 3, Μπλε για την κλάση 7 και
+    # Ματζέντα για την κλάση 9.
     cmap = ListedColormap(['r', 'r', 'g', 'r', 'r', 'r', 'b', 'r', 'm'])
 
     # -- Δημιουργία scatter plot --
@@ -45,6 +55,7 @@ def visualize_scatter():
 
     plt.title(r"$\hat{\mathbf{M}}$ visualization")
     plt.show()
+
 
 # Εκτέλεση του ζητούμενου task.
 if __name__ == '__main__':

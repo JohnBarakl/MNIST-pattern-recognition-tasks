@@ -1,3 +1,5 @@
+from scipy.linalg import norm
+
 import task1, task2
 
 import numpy as np
@@ -5,10 +7,23 @@ import matplotlib.pyplot as plt
 
 
 def euclidean_distance(x, y):
+    """
+    Υπολογίζει την ευκλείδεια απόσταση μεταξύ των x και y.
+    :param x: n-διάστατο σημείο.
+    :param y: n-διάστατο σημείο.
+    :return: Ευκλείδεια απόσταση μεταξύ των x και y.
+    """
     return np.sqrt(np.sum((x - y) ** 2, axis=1))
 
 
 def maximin(matrix: np.ndarray, num_of_clusters, distance=euclidean_distance):
+    """
+    Υλοποίηση του αλγορίθμου maximin.
+    :param matrix: Τα σημεία προς ομαδοποίηση.
+    :param num_of_clusters: Αριθμός ομάδων που πρέπει να "βρει" ο αλγόριθμος.
+    :param distance: Συνάρτηση υπολογισμού απόστασης μεταξύ σημείων.
+    :return: Τα κέντρα των ομάδων από την ομαδοποίηση που παράχθηκε μέσω του αλγορίθμου.
+    """
     # Ψευδώνυμο του matrix για ευκολότερη χρήση.
     x = matrix
 
@@ -28,8 +43,20 @@ def maximin(matrix: np.ndarray, num_of_clusters, distance=euclidean_distance):
     # Αν υπάρχουν περισσότερα του ενός τέτοια σημεία, επιλέγεται αυθαίρετα το πρώτο.
     z.append(x[np.argmax(d_from_z_1)])
 
+    # ------ Βήμα 3 ------ #
+    # Υπολογισμός των αποστάσεων όλων των δειγμάτων x_i από το z_i.
+    distances = np.array([distance(x, i) for i in z])
+
+    # Κρατάω την ελάχιστη απόσταση Δ_i για κάθε δείγμα x_i.
+    delta = np.min(distances, axis=0)
+
+    # Από τις κρατημένες Δ_i, παίρνω τη μέγιστη, Δ_max (στην πράξη το i του z_i για το οποίο "έδωσε" τη Δ_max).
+    delta_max_i = np.argmax(delta)
+
+    dmax = delta[delta_max_i]
+
     # Τα βήματα 3 και 4 εκτελούνται μέχρι ικανοποίησης της συνθήκης τερματισμού (επίτευξη επιθυμητού αριθμού κέντρων).
-    while len(z) < num_of_clusters:
+    while dmax >= norm((z[0] - z[1]), ord=2) / 2:
         # ------ Βήμα 3 ------ #
         # Υπολογισμός των αποστάσεων όλων των δειγμάτων x_i από το z_i.
         distances = np.array([distance(x, i) for i in z])
@@ -40,16 +67,36 @@ def maximin(matrix: np.ndarray, num_of_clusters, distance=euclidean_distance):
         # Από τις κρατημένες Δ_i, παίρνω τη μέγιστη, Δ_max (στην πράξη το i του z_i για το οποίο "έδωσε" τη Δ_max).
         delta_max_i = np.argmax(delta)
 
+        dmax = delta[delta_max_i]
+
         # ------ Βήμα 4 ------ #
         # Αν η συνθήκη τερματισμού ισχύει, τότε ο αλγόριθμος τερματίζεται: Έλεγχος από while loop.
         # Αλλιώς, έχουμε νέο κέντρο z' = x_i όπου Δ_i = Δ_max.
         # Αν υπάρχουν περισσότερα του ενός τέτοια σημεία, επιλέγω αυθαίρετα το πρώτο.
         z.append(x[delta_max_i])
 
+        # ------ Βήμα 3 ------ #
+        # Υπολογισμός των αποστάσεων όλων των δειγμάτων x_i από το z_i.
+        distances = np.array([distance(x, i) for i in z])
+
+        # Κρατάω την ελάχιστη απόσταση Δ_i για κάθε δείγμα x_i.
+        delta = np.min(distances, axis=0)
+
+        # Από τις κρατημένες Δ_i, παίρνω τη μέγιστη, Δ_max (στην πράξη το i του z_i για το οποίο "έδωσε" τη Δ_max).
+        delta_max_i = np.argmax(delta)
+
+        dmax = delta[delta_max_i]
+
     return z
 
-
 def k_means(matrix: np.ndarray, num_of_clusters, distance=euclidean_distance):
+    """
+    Υλοποίηση του αλγορίθμου Κ-Μέσων χρησιμοποιώντας τον maximin για αρχικοποίηση κέντρων ομάδων.
+    :param matrix: Τα σημεία προς ομαδοποίηση.
+    :param num_of_clusters: Αριθμός ομάδων που πρέπει να "βρει" ο αλγόριθμος.
+    :param distance: Συνάρτηση υπολογισμού απόστασης μεταξύ σημείων.
+    :return: Η ομαδοποίηση που παράχθηκε μέσω του αλγορίθμου.
+    """
     # Ψευδώνυμο του matrix για ευκολότερη χρήση.
     x = matrix
 
@@ -135,18 +182,18 @@ def clustering_purity(image_matrix: np.ndarray, label_matrix: np.ndarray, cluste
 
 
 # Εκτέλεση του ζητούμενου task.
-if __name__ == '__main__':
-    # Επεξεργασία Task 1.
-    M, _, L_tr, _ = task1.get_M_N_Ltr_Lte()
-
-    # Επεξεργασία Task 2.
-    M_cap = task2.reshape_and_extract_feature_vector(M)
-
-    # Clustering με K-means με αρχικοποίηση σημείων από maximin.
-    results = k_means(M_cap, 4)
-
-    # Κλήση για οπτικοποίηση.
-    visualize_clustering(results, r"$\hat{\mathbf{M}}$ clustering visualization")
-
-    # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
-    print('Purity =', clustering_purity(M_cap, L_tr, results))
+# if __name__ == '__main__':
+#     # Επεξεργασία Task 1.
+#     M, _, L_tr, _ = task1.get_M_N_Ltr_Lte()
+#
+#     # Επεξεργασία Task 2.
+#     M_cap = task2.reshape_and_extract_feature_vector(M)
+#
+#     # Clustering με K-means με αρχικοποίηση σημείων από maximin.
+#     results = k_means(M_cap, 4)
+#
+#     # Κλήση για οπτικοποίηση.
+#     visualize_clustering(results, r"$\hat{\mathbf{M}}$ clustering visualization")
+#
+#     # Υπολογισμός και εκτύπωσης Purity των αποτελεσμάτων ομαδοποίησης.
+#     print('Purity =', clustering_purity(M_cap, L_tr, results))

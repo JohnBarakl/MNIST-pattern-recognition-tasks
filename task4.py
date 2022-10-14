@@ -65,6 +65,12 @@ def transform(data_matrix: np.ndarray, V: int = None, base=None):
 
 
 def visualize_plain_scatter(M, L_tr, title=""):
+    """
+    Δημιουργεί ένα scatter plot για τις γραμμές του M, με χρώματα βάσει των ετικετών L_tr.
+    :param M: Περιέχει στις γραμμές του τα στοιχεία που θα υπάρχουν στο γράφημα.
+    :param L_tr: Οι ετικέτες που αντιστοιχούν σε κάθε στοιχείο.
+    :param title: Τίτλος γραφήματος.
+    """
     # Αντιστοίχιση από αρίθμηση κλάσεων με ακεραίους σε χρώματα.
     colors = L_tr
     cmap = ListedColormap(['r', 'r', 'g', 'r', 'r', 'r', 'b', 'r', 'm'])
